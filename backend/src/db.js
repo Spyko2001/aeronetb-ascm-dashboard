@@ -5,6 +5,7 @@ import { hashPassword, roleLabels, rolePermissions } from "./security.js";
 let pgPool = null;
 let mongoClient = null;
 let mongoDb = null;
+let mongoConnectionWarning = "";
 let memoryStore = new Map();
 let memoryCounters = new Map();
 
@@ -219,6 +220,20 @@ async function connectMongo() {
   await mongoClient.connect();
   mongoDb = mongoClient.db(config.mongoDbName);
   await ensureMongoCollectionsAndIndexes();
+}
+
+async function connectMongoWithFallback() {
+  try {
+    await connectMongo();
+  } catch (error) {
+    mongoConnectionWarning = `${error.name || "MongoDB error"}: ${error.message || "connection failed"}`;
+    console.warn(`MongoDB connection failed; continuing with in-memory document collections. ${mongoConnectionWarning}`);
+    if (mongoClient) {
+      await mongoClient.close().catch(() => {});
+    }
+    mongoClient = null;
+    mongoDb = null;
+  }
 }
 
 async function ensurePostgresSchema() {
@@ -766,7 +781,7 @@ async function seedMongo(prepared, { force = false } = {}) {
 
 export async function initDb({ autoSeed = config.autoSeed } = {}) {
   await connectPostgres();
-  await connectMongo();
+  await connectMongoWithFallback();
   resetMemoryStore();
 
   if (autoSeed) {
@@ -796,6 +811,10 @@ export function getDbMode() {
     return "memory relational + MongoDB";
   }
   return "memory";
+}
+
+export function getDbWarning() {
+  return mongoConnectionWarning;
 }
 
 export async function seedDatabase({ force = false } = {}) {

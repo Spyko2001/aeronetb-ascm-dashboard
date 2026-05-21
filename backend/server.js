@@ -8,6 +8,7 @@ import {
   closeDb,
   findOne,
   getDbMode,
+  getDbWarning,
   initDb,
   insertOne,
   list,
@@ -561,6 +562,7 @@ async function handleApi(req, res, url) {
       ok: true,
       service: "AeroNetB ASCM",
       database_mode: getDbMode(),
+      database_warning: getDbWarning() || null,
       timestamp: new Date().toISOString()
     });
     return;
