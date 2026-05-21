@@ -1,0 +1,33 @@
+erDiagram
+    qc_reports {
+        string report_id PK
+        int order_id FK
+        int part_id FK
+        int supplier_id FK
+        int inspector_emp_id FK
+        string report_type
+        date inspection_date
+        string outcome
+        json result_data
+        int version
+        boolean is_approved
+        timestamp created_at
+    }
+    certifications {
+        string cert_id PK
+        int part_id FK
+        int supplier_id FK
+        int inspector_emp_id FK
+        date certification_date
+        json test_results
+        string batch_origin
+        string digital_signature
+        boolean is_immutable
+        timestamp approval_date
+    }
+    iot_sensor_logs {
+        string log_id PK
+        int equipment_id FK
+        timestamp timestamp
+        json readings
+    }

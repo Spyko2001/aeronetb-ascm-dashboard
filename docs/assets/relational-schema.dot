@@ -1,0 +1,38 @@
+digraph RelationalSchema {
+  graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.6];
+  node [shape=record, style="rounded,filled", fillcolor="#f8fafc", color="#475467", fontname="Arial", fontsize=9];
+  edge [color="#667085", arrowsize=0.7, fontname="Arial", fontsize=8];
+
+  suppliers [label="{suppliers|PK supplier_id\lbusiness_name\laccreditation_status\lcontact_email\l}"];
+  parts [label="{parts|PK part_id\lpart_name\lpart_category\lbaseline specs\l}"];
+  supplier_parts [label="{supplier_parts|PK supplier_part_id\lFK supplier_id\lFK part_id\lcustomisation_notes\l}"];
+  purchase_orders [label="{purchase_orders|PK order_id\lFK supplier_id\lorder_date\ldelivery dates\lstatus\l}"];
+  purchase_order_lines [label="{purchase_order_lines|PK order_line_id\lFK order_id\lFK part_id\lFK supplier_part_id\lquantity\l}"];
+  shipments [label="{shipments|PK shipment_id\lFK order_id\ltracking_number\lport_of_entry\leta/status\l}"];
+  shipment_events [label="{shipment_events|PK event_id\lFK shipment_id\levent_timestamp\llocation\lcondition_notes\l}"];
+  roles [label="{roles|PK role_id\lrole_name\l}"];
+  permissions [label="{permissions|PK permission_id\lpermission_name\lscope\l}"];
+  role_permissions [label="{role_permissions|PK role_id + permission_id\l}"];
+  employees [label="{employees|PK emp_id\lfull_name\lauth_id UNIQUE\lrole\lpassword_hash\l}"];
+  employee_roles [label="{employee_roles|PK emp_id + role_id\l}"];
+  profiles [label="{role profile tables|procurement_officer_profiles\lquality_inspector_profiles\lsupply_chain_manager_profiles\lequipment_engineer_profiles\lauditor_regulator_profiles\l}"];
+  equipment [label="{equipment|PK equipment_id\lequipment_name\lfacility\lFK assigned_emp_id\l}"];
+  audit_logs [label="{audit_logs|PK log_id\lFK emp_id\laction_type\lentity_id\ltimestamp\l}"];
+
+  suppliers -> supplier_parts;
+  parts -> supplier_parts;
+  suppliers -> purchase_orders;
+  purchase_orders -> purchase_order_lines;
+  parts -> purchase_order_lines;
+  supplier_parts -> purchase_order_lines;
+  purchase_orders -> shipments;
+  shipments -> shipment_events;
+  roles -> employees;
+  roles -> role_permissions;
+  permissions -> role_permissions;
+  employees -> employee_roles;
+  roles -> employee_roles;
+  employees -> profiles;
+  employees -> equipment;
+  employees -> audit_logs;
+}

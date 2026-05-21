@@ -1,0 +1,119 @@
+erDiagram
+    Supplier ||--o{ Supplier_Part : ""
+    Part ||--o{ Supplier_Part : ""
+    Supplier ||--o{ Purchase_Order : ""
+    Purchase_Order ||--o{ Purchase_Order_Line : ""
+    Part ||--o{ Purchase_Order_Line : ""
+    Purchase_Order ||--o{ Shipment : ""
+    Shipment ||--o{ Shipment_Event : ""
+    Employee ||--o| Procurement_Officer_Profile : ""
+    Employee ||--o| Quality_Inspector_Profile : ""
+    Employee ||--o| Supply_Chain_Manager_Profile : ""
+    Employee ||--o| Equipment_Engineer_Profile : ""
+    Employee ||--o| Auditor_Regulator_Profile : ""
+    Employee ||--o{ Equipment : ""
+    Employee ||--o{ Audit_Log : ""
+
+    Supplier {
+        int supplier_id PK
+        string business_name
+        string address
+        string contact_email
+        string contact_phone
+        string accreditation_status
+    }
+    Part {
+        int part_id PK
+        string part_name
+        string description
+        float spec_tensile_strength
+        float spec_fatigue_limit
+        string spec_process_details
+    }
+    Supplier_Part {
+        int supplier_id FK
+        int part_id FK
+        string customisation_notes
+    }
+    Purchase_Order {
+        int order_id PK
+        int supplier_id FK
+        date order_date
+        date desired_delivery_date
+        date actual_delivery_date
+        string status
+    }
+    Purchase_Order_Line {
+        int order_line_id PK
+        int order_id FK
+        int part_id FK
+        int quantity
+    }
+    Shipment {
+        int shipment_id PK
+        int order_id FK
+        string tracking_number
+        string port_of_entry
+    }
+    Shipment_Event {
+        int event_id PK
+        int shipment_id FK
+        timestamp event_timestamp
+        string location
+        string condition_notes
+    }
+    Employee {
+        int emp_id PK
+        string full_name
+        string job_title
+        string department
+        string email
+        string phone
+        string access_level
+        string auth_id
+    }
+    Procurement_Officer_Profile {
+        int emp_id FK
+        string region_or_portfolio
+        float authorisation_limit
+    }
+    Quality_Inspector_Profile {
+        int emp_id FK
+        string inspector_certification_ids
+        string inspection_specialisation
+        string digital_signature_stamp
+    }
+    Supply_Chain_Manager_Profile {
+        int emp_id FK
+        string assigned_product_lines
+        string reporting_level
+        string dashboard_kpi_preferences
+    }
+    Equipment_Engineer_Profile {
+        int emp_id FK
+        string engineering_license
+        string assigned_facility
+        string machine_groups_responsible
+    }
+    Auditor_Regulator_Profile {
+        int emp_id FK
+        string agency_name
+        string accreditation_license_id
+        string audit_scope
+        boolean read_only_flag
+    }
+    Equipment {
+        int equipment_id PK
+        string equipment_name
+        string equipment_type
+        string facility
+        int assigned_emp_id FK
+    }
+    Audit_Log {
+        int log_id PK
+        int emp_id FK
+        string action_type
+        string entity_type
+        int entity_id
+        timestamp action_timestamp
+    }

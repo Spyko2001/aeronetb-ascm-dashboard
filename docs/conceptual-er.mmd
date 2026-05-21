@@ -1,0 +1,126 @@
+erDiagram
+    Supplier ||--o{ Supplier_Part : "1:N"
+    Part ||--o{ Supplier_Part : "1:N"
+    Supplier ||--o{ Purchase_Order : "1:N"
+    Purchase_Order ||--o{ Purchase_Order_Line : "1:N"
+    Part ||--o{ Purchase_Order_Line : "1:N"
+    Purchase_Order ||--o{ Shipment : "1:N"
+    Shipment ||--o{ Shipment_Event : "1:N"
+    Employee ||--o| Procurement_Officer_Profile : "1:0..1"
+    Employee ||--o| Quality_Inspector_Profile : "1:0..1"
+    Employee ||--o| Supply_Chain_Manager_Profile : "1:0..1"
+    Employee ||--o| Equipment_Engineer_Profile : "1:0..1"
+    Employee ||--o| Auditor_Regulator_Profile : "1:0..1"
+    Employee ||--o{ Equipment : "1:N"
+    Employee ||--o{ Audit_Log : "1:N"
+    Equipment ||..o{ iot_sensor_logs : "1:N cross-DB"
+    Employee ||..o{ qc_reports : "1:N cross-DB"
+    Employee ||..o{ certifications : "1:N cross-DB"
+    Purchase_Order ||..o{ qc_reports : "1:N cross-DB"
+    Supplier ||..o{ qc_reports : "1:N cross-DB"
+    Part ||..o{ qc_reports : "1:N cross-DB"
+    Supplier ||..o{ certifications : "1:N cross-DB"
+    Part ||..o{ certifications : "1:N cross-DB"
+
+    Supplier {
+        int supplier_id PK
+        string business_name
+        string address
+        string contact_email
+        string contact_phone
+        string accreditation_status
+    }
+    Part {
+        int part_id PK
+        string part_name
+        string description
+        float spec_tensile_strength
+        float spec_fatigue_limit
+        string spec_process_details
+    }
+    Supplier_Part {
+        int supplier_id FK
+        int part_id FK
+        string customisation_notes
+    }
+    Purchase_Order {
+        int order_id PK
+        int supplier_id FK
+        date order_date
+        date desired_delivery_date
+        date actual_delivery_date
+        string status
+    }
+    Purchase_Order_Line {
+        int order_line_id PK
+        int order_id FK
+        int part_id FK
+        int quantity
+    }
+    Shipment {
+        int shipment_id PK
+        int order_id FK
+        string tracking_number
+        string port_of_entry
+    }
+    Shipment_Event {
+        int event_id PK
+        int shipment_id FK
+        timestamp event_timestamp
+        string location
+        string condition_notes
+    }
+    Employee {
+        int emp_id PK
+        string full_name
+        string job_title
+        string department
+        string email
+        string phone
+        string access_level
+        string auth_id
+    }
+    Equipment {
+        int equipment_id PK
+        string equipment_name
+        string equipment_type
+        string facility
+        int assigned_emp_id FK
+    }
+    Audit_Log {
+        int log_id PK
+        int emp_id FK
+        string action_type
+        string entity_type
+        int entity_id
+        timestamp action_timestamp
+    }
+    qc_reports {
+        string report_id PK
+        int order_id FK
+        int part_id FK
+        int supplier_id FK
+        int inspector_emp_id FK
+        string report_type
+        string outcome
+        json result_data
+        int version
+        boolean is_approved
+    }
+    certifications {
+        string cert_id PK
+        int part_id FK
+        int supplier_id FK
+        int inspector_emp_id FK
+        string certification_date
+        json test_results
+        string batch_origin
+        string digital_signature
+        boolean is_immutable
+    }
+    iot_sensor_logs {
+        string log_id PK
+        int equipment_id FK
+        timestamp timestamp
+        json readings
+    }

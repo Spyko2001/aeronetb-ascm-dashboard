@@ -1,0 +1,42 @@
+digraph ConceptualER {
+  graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.7];
+  node [shape=record, style="rounded,filled", fillcolor="#f8fafc", color="#475467", fontname="Arial", fontsize=10];
+  edge [color="#667085", fontname="Arial", fontsize=9];
+
+  Supplier [label="{SUPPLIER|supplier_id\lbusiness_name\laccreditation_status\lcontact details\l}"];
+  Part [label="{PART|part_id\lpart_name\lbaseline specs\lcategory\l}"];
+  SupplierPart [label="{SUPPLIER_PART|supplier_part_id\lsupplier_id\lpart_id\lsupplier_part_code\lcustomisation_notes\l}"];
+  PurchaseOrder [label="{PURCHASE_ORDER|order_id\lsupplier_id\lorder dates\lstatus\l}"];
+  OrderLine [label="{PURCHASE_ORDER_LINE|order_line_id\lorder_id\lpart_id\lsupplier_part_id\lquantity\l}"];
+  Shipment [label="{SHIPMENT|shipment_id\lorder_id\ltracking_number\lport_of_entry\leta/status\l}"];
+  ShipmentEvent [label="{SHIPMENT_EVENT|event_id\lshipment_id\ltimestamp\llocation\lcondition_notes\l}"];
+  Employee [label="{EMPLOYEE|emp_id\lfull_name\lauth_id\lrole\laccess_level\l}"];
+  Role [label="{ROLE / PERMISSION|role_id\lpermission_id\lread/write/approve/audit\l}"];
+  Equipment [label="{EQUIPMENT|equipment_id\lequipment_name\lfacility\lassigned_emp_id\l}"];
+  AuditLog [label="{AUDIT_LOG|log_id\lemp_id\laction_type\lentity\ltimestamp\l}"];
+
+  Qc [label="{qc_reports|report_id\lorder_id/part_id/supplier_id\lresult_data JSON\lversion\lis_approved\l}", fillcolor="#ecfdf3", style="rounded,dashed,filled"];
+  Cert [label="{certifications|cert_id\lpart_id/supplier_id\ltest_results JSON\ldigital_signature\lis_immutable\l}", fillcolor="#ecfdf3", style="rounded,dashed,filled"];
+  Iot [label="{iot_sensor_logs|log_id\lequipment_id\ltimestamp\lreadings JSON\l}", fillcolor="#ecfdf3", style="rounded,dashed,filled"];
+  Flags [label="{compliance_flags|flag_id\lcreated_by_emp_id\lentity_id\lseverity/status\l}", fillcolor="#ecfdf3", style="rounded,dashed,filled"];
+
+  Supplier -> SupplierPart [label="provides"];
+  Part -> SupplierPart [label="sourced as"];
+  Supplier -> PurchaseOrder [label="receives"];
+  PurchaseOrder -> OrderLine [label="contains"];
+  Part -> OrderLine [label="ordered"];
+  SupplierPart -> OrderLine [label="variant"];
+  PurchaseOrder -> Shipment [label="fulfilled by"];
+  Shipment -> ShipmentEvent [label="updates"];
+  Employee -> Equipment [label="assigned"];
+  Employee -> AuditLog [label="performs"];
+  Role -> Employee [label="authorises"];
+  Equipment -> Iot [style=dashed, label="emits"];
+  PurchaseOrder -> Qc [style=dashed, label="inspected"];
+  Part -> Qc [style=dashed, label="tested"];
+  Supplier -> Qc [style=dashed, label="quality by"];
+  Part -> Cert [style=dashed, label="certified"];
+  Supplier -> Cert [style=dashed, label="supplied by"];
+  Employee -> Cert [style=dashed, label="approves"];
+  Employee -> Flags [style=dashed, label="flags"];
+}

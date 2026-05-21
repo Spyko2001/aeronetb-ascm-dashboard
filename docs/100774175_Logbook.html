@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>100774175 Logbook - AeroNetB ASCM</title>
+    <style>
+      @page { size: A4; margin: 16mm; }
+      body { font-family: Arial, sans-serif; color: #17202a; line-height: 1.42; font-size: 11pt; }
+      h1, h2, h3 { color: #111827; page-break-after: avoid; }
+      h1 { font-size: 23pt; margin-top: 0; }
+      h2 { font-size: 15pt; border-bottom: 1px solid #d7dde5; padding-bottom: 4px; margin-top: 24px; }
+      h3 { font-size: 12.5pt; margin-top: 16px; }
+      table { width: 100%; border-collapse: collapse; margin: 9px 0 14px; }
+      th, td { border: 1px solid #d7dde5; padding: 5px 7px; vertical-align: top; }
+      th { background: #eef2f6; text-align: left; }
+      figure { margin: 14px 0 18px; page-break-inside: avoid; }
+      figcaption { font-weight: 700; margin-top: 5px; }
+      img { max-width: 100%; height: auto; border: 1px solid #d7dde5; }
+      code { font-family: Consolas, monospace; font-size: 9.5pt; }
+      pre { font-family: Consolas, monospace; font-size: 9pt; background: #f8fafc; border: 1px solid #d7dde5; padding: 8px; white-space: pre-wrap; }
+      .title { min-height: 52vh; display: flex; flex-direction: column; justify-content: center; }
+      .meta { margin-top: 24px; width: 76%; }
+      .page-break { page-break-before: always; }
+    </style>
+  </head>
+  <body>
+    <section class="title">
+      <h1>AeroNetB ASCM Implementation Logbook</h1>
+      <h2>5CM506 Data Driven Systems - D-II</h2>
+      <table class="meta">
+        <tr><th>Student Name</th><td>Spyros Kokkoris</td></tr>
+        <tr><th>Student ID</th><td>100774175</td></tr>
+        <tr><th>System</th><td>AeroNetB Aerospace Supply Chain Management Dashboard</td></tr>
+        <tr><th>Deployment Mode</th><td>Cloud deployment through Render Blueprint, with local fallback for demonstration and testing</td></tr>
+        <tr><th>Submission Date</th><td>May 2026</td></tr>
+      </table>
+    </section>
+
+    <h2>1. Implementation Details</h2>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+      <tr><td>Frontend</td><td>HTML, CSS, JavaScript</td><td>Role-specific web dashboard, charts, search, forms, and CSV export controls.</td></tr>
+      <tr><td>Backend</td><td>Node.js HTTP API</td><td>Authentication, RBAC, validation, cross-database joins, audit logging, and static frontend hosting.</td></tr>
+      <tr><td>Relational DB</td><td>PostgreSQL on Render</td><td>Structured supplier, part, order, shipment, employee, role, equipment, and audit data.</td></tr>
+      <tr><td>Document DB</td><td>MongoDB Atlas</td><td>QC reports, certifications, IoT sensor logs, and compliance flags.</td></tr>
+      <tr><td>Deployment</td><td>Render Blueprint</td><td>Creates the web service and PostgreSQL database from <code>render.yaml</code>.</td></tr>
+    </table>
+
+    <h3>1.1 Access Instructions</h3>
+    <table>
+      <tr><th>Item</th><th>Value</th></tr>
+      <tr><td>GitHub repository</td><td><code>https://github.com/Spyko2001/aeronetb-ascm-dashboard</code></td></tr>
+      <tr><td>Render dashboard URL</td><td><code>https://aeronetb-ascm-dashboard.onrender.com</code></td></tr>
+      <tr><td>Health endpoint</td><td><code>https://aeronetb-ascm-dashboard.onrender.com/api/health</code></td></tr>
+      <tr><td>PostgreSQL connection</td><td>Managed by Render through <code>DATABASE_URL</code>; private value is not included in the submission.</td></tr>
+      <tr><td>MongoDB connection</td><td>Managed by Render through <code>MONGODB_URI</code>; private value is not included in the submission.</td></tr>
+    </table>
+
+    <h3>1.2 Demo Accounts</h3>
+    <table>
+      <tr><th>Role</th><th>Auth ID</th><th>Password</th></tr>
+      <tr><td>Procurement Officer</td><td><code>priya.procurement</code></td><td><code>demo123</code></td></tr>
+      <tr><td>Quality Inspector</td><td><code>lena.inspector</code></td><td><code>demo123</code></td></tr>
+      <tr><td>Supply Chain Manager</td><td><code>marcus.manager</code></td><td><code>demo123</code></td></tr>
+      <tr><td>Equipment Engineer</td><td><code>irene.engineer</code></td><td><code>demo123</code></td></tr>
+      <tr><td>Auditor / Regulator</td><td><code>omar.auditor</code></td><td><code>demo123</code></td></tr>
+    </table>
+
+    <h2>2. Refined Logical Models</h2>
+    <p>The first-semester design was continued and refined into a deployable hybrid model. PostgreSQL now stores the structured domains and MongoDB stores flexible document domains. The backend is responsible for validating cross-database references and combining data for the dashboard.</p>
+    <figure>
+      <img src="assets/relational-schema.png" alt="PostgreSQL relational schema">
+      <figcaption>Figure 1 - Refined PostgreSQL relational schema</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/mongodb-document-model.png" alt="MongoDB document schema">
+      <figcaption>Figure 2 - Refined MongoDB document model</figcaption>
+    </figure>
+
+    <h3>2.1 Refinements From Task 1</h3>
+    <table>
+      <tr><th>Refinement</th><th>Implementation</th></tr>
+      <tr><td>Explicit RBAC model</td><td>Added relational <code>roles</code>, <code>permissions</code>, <code>role_permissions</code>, and <code>employee_roles</code> tables, with API checks for every protected endpoint.</td></tr>
+      <tr><td>Versioned QC reports</td><td>New QC submissions create a new MongoDB document version for the same order, part, supplier, and inspection type.</td></tr>
+      <tr><td>Immutable certifications</td><td>The certification update route rejects changes after approval by checking <code>is_immutable</code>.</td></tr>
+      <tr><td>Audit coverage</td><td>Login, view, create, update, approve, export, and flag actions create audit entries with <code>emp_id</code>.</td></tr>
+      <tr><td>Deployment readiness</td><td>Added Render Blueprint, environment variables, automatic schema creation, automatic seeding, and a local memory fallback.</td></tr>
+    </table>
+
+    <h2>3. Database Implementation</h2>
+    <table>
+      <tr><th>Evidence File</th><th>Description</th></tr>
+      <tr><td><code>sql_scripts/ddl.sql</code></td><td>PostgreSQL table definitions, keys, constraints, and indexes.</td></tr>
+      <tr><td><code>sql_scripts/dml.sql</code></td><td>Dummy relational data for suppliers, parts, orders, shipments, employees, roles, profiles, equipment, and audit logs.</td></tr>
+      <tr><td><code>mongo_scripts/collections.js</code></td><td>MongoDB collection creation, JSON Schema validators, and indexes.</td></tr>
+      <tr><td><code>backend/src/seed-data.js</code></td><td>Runtime seed records used by the Node application for PostgreSQL and MongoDB bootstrap.</td></tr>
+    </table>
+
+    <h2>4. API Design and Development</h2>
+    <table>
+      <tr><th>Method</th><th>Endpoint URI</th><th>Description</th><th>Data Source</th><th>Role Access</th></tr>
+      <tr><td>POST</td><td><code>/api/auth/login</code></td><td>Authenticates a seeded user and returns a signed token.</td><td>PostgreSQL employees</td><td>Public with valid credentials</td></tr>
+      <tr><td>GET</td><td><code>/api/dashboard</code></td><td>Returns KPIs, alerts, supplier performance, QC summary, shipments, and IoT status.</td><td>PostgreSQL + MongoDB</td><td>All roles</td></tr>
+      <tr><td>GET / POST</td><td><code>/api/suppliers</code></td><td>Lists suppliers or creates a supplier.</td><td>PostgreSQL suppliers</td><td>Read: all relevant roles; write: procurement</td></tr>
+      <tr><td>GET / POST / PATCH</td><td><code>/api/orders</code></td><td>Lists, creates, or updates purchase orders.</td><td>PostgreSQL orders and order lines</td><td>Read: procurement/manager/quality; write: procurement</td></tr>
+      <tr><td>GET / POST</td><td><code>/api/shipments</code>, <code>/api/shipments/:id/events</code></td><td>Lists shipments and adds event updates.</td><td>PostgreSQL shipments and events</td><td>Read: logistics roles; write: procurement/manager</td></tr>
+      <tr><td>GET / POST</td><td><code>/api/qc-reports</code></td><td>Lists reports and creates a new versioned QC report.</td><td>MongoDB qc_reports</td><td>Read: permitted roles; write: quality</td></tr>
+      <tr><td>POST</td><td><code>/api/qc-reports/:id/approve</code></td><td>Approves a QC report.</td><td>MongoDB qc_reports</td><td>Quality inspector</td></tr>
+      <tr><td>GET / POST / PATCH</td><td><code>/api/certifications</code></td><td>Lists, creates, or updates pending certifications.</td><td>MongoDB certifications</td><td>Read: permitted roles; write: quality</td></tr>
+      <tr><td>POST</td><td><code>/api/certifications/:id/approve</code></td><td>Locks a certification as immutable.</td><td>MongoDB certifications</td><td>Quality inspector</td></tr>
+      <tr><td>GET / POST</td><td><code>/api/iot</code></td><td>Lists IoT sensor readings or submits telemetry.</td><td>MongoDB iot_sensor_logs</td><td>Read/write: equipment engineer</td></tr>
+      <tr><td>GET / POST</td><td><code>/api/compliance-flags</code></td><td>Lists or raises compliance flags.</td><td>MongoDB compliance_flags</td><td>Auditor can create flags</td></tr>
+      <tr><td>GET</td><td><code>/api/audit-logs</code></td><td>Lists recent audit trail events.</td><td>PostgreSQL audit_logs</td><td>Manager and auditor</td></tr>
+      <tr><td>GET</td><td><code>/api/export/:collection</code></td><td>Exports permitted datasets as CSV.</td><td>PostgreSQL or MongoDB</td><td>Manager and auditor</td></tr>
+    </table>
+
+    <h2>5. Dashboard Evidence</h2>
+    <figure>
+      <img src="assets/screenshot-overview.png" alt="Overview dashboard screenshot">
+      <figcaption>Figure 3 - Supply Chain Manager overview dashboard with KPIs and charts</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/screenshot-procurement.png" alt="Procurement dashboard screenshot">
+      <figcaption>Figure 4 - Procurement view for supplier and order workflow</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/screenshot-quality.png" alt="Quality dashboard screenshot">
+      <figcaption>Figure 5 - Quality view for QC report and certification workflow</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/screenshot-equipment.png" alt="Equipment dashboard screenshot">
+      <figcaption>Figure 6 - Equipment engineer IoT monitoring view</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/screenshot-compliance.png" alt="Compliance dashboard screenshot">
+      <figcaption>Figure 7 - Auditor compliance and certification review view</figcaption>
+    </figure>
+
+    <h2>6. Security and Compliance</h2>
+    <table>
+      <tr><th>Control</th><th>Implementation</th></tr>
+      <tr><td>Authentication</td><td>Users log in with auth ID and password. Stored passwords are PBKDF2 hashes with salts.</td></tr>
+      <tr><td>Session protection</td><td>The API issues signed HMAC session tokens with expiry.</td></tr>
+      <tr><td>RBAC</td><td>Each endpoint checks permissions in the backend before reading or mutating data.</td></tr>
+      <tr><td>Auditor restriction</td><td>The auditor can read compliance data and raise flags but cannot mutate suppliers, orders, QC reports, or certifications.</td></tr>
+      <tr><td>Certification immutability</td><td>Approved certifications have <code>is_immutable=true</code>. Later update attempts return HTTP 409.</td></tr>
+      <tr><td>Audit trail</td><td>Important actions write a record to <code>audit_logs</code> with emp_id, action type, entity, timestamp, outcome, and details.</td></tr>
+    </table>
+
+    <h2>7. Testing and Validation</h2>
+    <table>
+      <tr><th>Test</th><th>Expected Result</th><th>Status</th></tr>
+      <tr><td><code>npm run check</code></td><td>JavaScript syntax checks pass for backend and tests.</td><td>Passed</td></tr>
+      <tr><td><code>npm test</code></td><td>Integration tests pass against a local seeded service.</td><td>Passed</td></tr>
+      <tr><td>Auditor creates supplier</td><td>Request is rejected with HTTP 403.</td><td>Passed</td></tr>
+      <tr><td>Procurement creates supplier</td><td>Supplier is created and returned with HTTP 201.</td><td>Passed</td></tr>
+      <tr><td>QC report retest</td><td>New report receives the next version number.</td><td>Passed</td></tr>
+      <tr><td>Approved certification update</td><td>Update is rejected with HTTP 409.</td><td>Passed</td></tr>
+      <tr><td>IoT reading submission</td><td>Equipment engineer can submit telemetry.</td><td>Passed</td></tr>
+      <tr><td>CSV export</td><td>Manager can export audit logs as CSV.</td><td>Passed</td></tr>
+    </table>
+
+    <h2>8. Deployment Explanation</h2>
+    <p>Render was chosen because it can deploy the Node.js service directly from GitHub and can create a PostgreSQL database from the same Blueprint file. MongoDB Atlas was chosen for document storage because the scenario includes variable QC payloads, certification evidence, and IoT readings. The Render service uses environment variables for all private connection strings. The same codebase runs locally in memory mode when database credentials are not present, which supports offline demonstration and automated testing.</p>
+
+    <h2>9. Demo Flow</h2>
+    <ol>
+      <li>Open the Render URL and show <code>/api/health</code>.</li>
+      <li>Log in as Supply Chain Manager and show KPIs, alerts, supplier chart, QC chart, search, and CSV export.</li>
+      <li>Log in as Procurement Officer and create a supplier or order.</li>
+      <li>Log in as Quality Inspector and create/approve a QC report, then create and lock a certification.</li>
+      <li>Try to edit the locked certification and show the immutability error.</li>
+      <li>Log in as Equipment Engineer and add an IoT reading.</li>
+      <li>Log in as Auditor and show read-only compliance access plus compliance flag creation.</li>
+      <li>Show the audit log proving actions are attributed to emp_id.</li>
+    </ol>
+  </body>
+</html>

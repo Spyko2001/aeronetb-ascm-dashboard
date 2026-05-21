@@ -1,0 +1,16 @@
+digraph MongoDocumentModel {
+  graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.55, ranksep=0.7];
+  node [shape=record, style="rounded,filled", fillcolor="#ecfdf3", color="#027a48", fontname="Arial", fontsize=10];
+  edge [color="#039855", style=dashed, fontname="Arial", fontsize=9];
+
+  Qc [label="{qc_reports|report_id\lorder_id\lpart_id\lsupplier_id\linspector_emp_id\lreport_type\loutcome\lresult_data object\lversion\lis_approved\l}"];
+  Cert [label="{certifications|cert_id\lpart_id\lsupplier_id\linspector_emp_id\lcertification_date\ltest_results object\lbatch_origin\ldigital_signature\lis_immutable\lapproval_date\l}"];
+  Iot [label="{iot_sensor_logs|log_id\lequipment_id\ltimestamp\lreadings object\ltemperature/vibration/pressure/GPS\l}"];
+  Flags [label="{compliance_flags|flag_id\lcreated_by_emp_id\lentity_type\lentity_id\lseverity\lnote\lstatus\l}"];
+  PgRefs [label="{PostgreSQL shared identifiers|order_id\lpart_id\lsupplier_id\lemp_id\lequipment_id\l}", fillcolor="#f8fafc", color="#475467"];
+
+  PgRefs -> Qc [label="logical reference"];
+  PgRefs -> Cert [label="logical reference"];
+  PgRefs -> Iot [label="logical reference"];
+  PgRefs -> Flags [label="auditor reference"];
+}
