@@ -110,7 +110,8 @@ npm run seed -- --force
 - `docs/100774175_DDD.docx`
 - `docs/100774175_Logbook.pdf`
 - `docs/100774175_Logbook.docx`
-- `docs/100774175_videoDemo_script.md`
+- `docs/100774175_videoDemo_script.pdf`
+- `docs/100774175_videoDemo_script.docx`
 - `docs/demo_checklist.md`
 - `sql_scripts/ddl.sql`
 - `sql_scripts/dml.sql`
@@ -118,4 +119,4 @@ npm run seed -- --force
 - `backend/`
 - `frontend/`
 
-The final ZIP is generated as `100774175_5CM506_DII.zip`, matching the provided ZIP structure template. If the Blackboard submission point asks for the shorter name from the brief, rename it to `100774175_DII.zip`.
+When the actual presentation video is recorded, add it as `100774175_videoDemo.mp4` and create the final ZIP as `100774175_5CM506_DII.zip`, matching the provided ZIP structure template.
