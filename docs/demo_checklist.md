@@ -16,4 +16,6 @@ Student ID: 100774175
 | Certification immutability example | Approved certification update returns HTTP 409. |
 | GitHub link | `https://github.com/Spyko2001/aeronetb-ascm-dashboard` |
 | Render Blueprint link | `https://render.com/deploy?repo=https://github.com/Spyko2001/aeronetb-ascm-dashboard` |
-| Render app link after Blueprint creation | `https://aeronetb-ascm-dashboard.onrender.com` |
+| Live Render app link | `https://aeronetb-ascm-dashboard.onrender.com` |
+| Live health endpoint | `https://aeronetb-ascm-dashboard.onrender.com/api/health` |
+| Verified database mode | `PostgreSQL + MongoDB`, `database_warning: null` |
