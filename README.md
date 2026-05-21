@@ -107,7 +107,9 @@ npm run seed -- --force
 ## Submission Evidence
 
 - `docs/100774175_DDD.pdf`
+- `docs/100774175_DDD.docx`
 - `docs/100774175_Logbook.pdf`
+- `docs/100774175_Logbook.docx`
 - `docs/100774175_videoDemo_script.md`
 - `docs/demo_checklist.md`
 - `sql_scripts/ddl.sql`
