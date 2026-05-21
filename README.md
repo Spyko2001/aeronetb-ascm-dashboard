@@ -9,8 +9,9 @@ This repository contains the D-II implementation for the AeroNetB Aerospace Supp
 ## Live Links
 
 - GitHub: `https://github.com/Spyko2001/aeronetb-ascm-dashboard`
-- Render target URL: `https://aeronetb-ascm-dashboard.onrender.com`
-- Health check: `https://aeronetb-ascm-dashboard.onrender.com/api/health`
+- Render Blueprint deploy link: `https://render.com/deploy?repo=https://github.com/Spyko2001/aeronetb-ascm-dashboard`
+- Render app URL after Blueprint creation: `https://aeronetb-ascm-dashboard.onrender.com`
+- Health check after Blueprint creation: `https://aeronetb-ascm-dashboard.onrender.com/api/health`
 
 The Render URL becomes active after creating the Blueprint instance from this repository and entering the private MongoDB Atlas connection string.
 

@@ -18,6 +18,10 @@ Show the Render dashboard URL:
 
 `https://aeronetb-ascm-dashboard.onrender.com`
 
+If the Blueprint has not yet been created, show the Render deploy link:
+
+`https://render.com/deploy?repo=https://github.com/Spyko2001/aeronetb-ascm-dashboard`
+
 Open `/api/health` and show that the API responds.
 
 ## 3. Manager Overview

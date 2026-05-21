@@ -15,4 +15,5 @@ Student ID: 100774175
 | QC immutability/versioning example | New QC retest creates next version number. |
 | Certification immutability example | Approved certification update returns HTTP 409. |
 | GitHub link | `https://github.com/Spyko2001/aeronetb-ascm-dashboard` |
-| Render link | `https://aeronetb-ascm-dashboard.onrender.com` |
+| Render Blueprint link | `https://render.com/deploy?repo=https://github.com/Spyko2001/aeronetb-ascm-dashboard` |
+| Render app link after Blueprint creation | `https://aeronetb-ascm-dashboard.onrender.com` |
