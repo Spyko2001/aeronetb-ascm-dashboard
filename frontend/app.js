@@ -642,7 +642,7 @@ function drawSupplierChart() {
   }
 
   // Sort by supplier_id and remove entries with no data
-  data = data.filter(item => (item.on_time_rate || 0) > 0 || (item.defect_rate || 0) > 0);
+  // Always show all suppliers (even those with 0% rates)
   data.sort((a, b) => a.supplier_id - b.supplier_id);
 
   if (!data.length) {
@@ -660,12 +660,11 @@ function drawSupplierChart() {
   const plotWidth = width - marginLeft - marginRight;
   const plotHeight = height - marginTop - marginBottom;
 
-  // Bar dimensions
+  // Even spacing across the full width
   const barWidth = 16;
-  const gap = 4;
-  const groupSpacing = 10;
-  const totalGroupWidth = barWidth + gap + barWidth + groupSpacing;
-  const startX = marginLeft + (plotWidth - data.length * totalGroupWidth) / 2;
+  const gapBetweenBars = 4;
+  const groupWidth = plotWidth / data.length;
+  const startX = marginLeft;
 
   // Grid lines + Y-axis numbers
   ctx.strokeStyle = "#e5e7eb";
@@ -696,9 +695,12 @@ function drawSupplierChart() {
   ctx.fillStyle = "#17202a";
   ctx.fillText("Defect %", 126, 18);
 
-  // Draw bars
+  // Draw bars - evenly spaced
   data.forEach((item, index) => {
-    const xStart = startX + index * totalGroupWidth;
+    const groupCenter = startX + (index + 0.5) * groupWidth;
+    const xOnTime = groupCenter - barWidth - gapBetweenBars / 2;
+    const xDefect = groupCenter + gapBetweenBars / 2;
+
     const onTime = Math.max(0, Math.min(100, item.on_time_rate || 0));
     const defect = Math.max(0, Math.min(100, item.defect_rate || 0));
     const onTimeHeight = (onTime / max) * plotHeight;
@@ -706,18 +708,17 @@ function drawSupplierChart() {
 
     // On time bar (teal)
     ctx.fillStyle = "#0f766e";
-    ctx.fillRect(xStart, marginTop + plotHeight - onTimeHeight, barWidth, onTimeHeight);
+    ctx.fillRect(xOnTime, marginTop + plotHeight - onTimeHeight, barWidth, onTimeHeight);
 
     // Defect bar (red)
     ctx.fillStyle = "#b91c1c";
-    ctx.fillRect(xStart + barWidth + gap, marginTop + plotHeight - defectHeight, barWidth, defectHeight);
+    ctx.fillRect(xDefect, marginTop + plotHeight - defectHeight, barWidth, defectHeight);
 
-    // Supplier ID label - centered under both bars
+    // Supplier ID label - centered under the group
     ctx.fillStyle = "#344054";
     ctx.textAlign = "center";
     ctx.font = "12px system-ui";
-    const labelX = xStart + barWidth / 2 + gap / 2 + barWidth / 2;
-    ctx.fillText(String(item.supplier_id), labelX, height - 12);
+    ctx.fillText(String(item.supplier_id), groupCenter, height - 12);
   });
 
   ctx.textAlign = "left";
@@ -732,10 +733,10 @@ function drawQcChart() {
   const summary = state.dashboard?.qcSummary?.by_outcome || {};
   const pass = summary.PASS || 0;
   const fail = summary.FAIL || 0;
-  const total = Math.max(pass + fail, 1);
+  const total = pass + fail;
   const cx = width / 2;
-  const cy = height / 2;
-  const radius = Math.min(width, height) / 3.1;
+  const cy = height / 2 - 8;
+  const radius = Math.min(width, height) / 3.2;
   ctx.clearRect(0, 0, width, height);
 
   // Legend
@@ -748,6 +749,12 @@ function drawQcChart() {
   ctx.fillRect(110, 10, 12, 12);
   ctx.fillStyle = "#17202a";
   ctx.fillText(`FAIL: ${fail}`, 126, 20);
+
+  if (total === 0) {
+    ctx.fillStyle = "#667085";
+    ctx.fillText("No QC data", 48, 60);
+    return;
+  }
 
   let start = -Math.PI / 2;
   [
@@ -764,13 +771,11 @@ function drawQcChart() {
     start += angle;
   });
 
-  // Center total (only show if there is data)
-  if (total > 0) {
-    ctx.fillStyle = "#17202a";
-    ctx.font = "700 22px system-ui";
-    ctx.textAlign = "center";
-    ctx.fillText(`${total}`, cx, cy + 8);
-  }
+  // Total number placed below the pie (cleaner, no overlap)
+  ctx.fillStyle = "#17202a";
+  ctx.font = "600 16px system-ui";
+  ctx.textAlign = "center";
+  ctx.fillText(`Total: ${total}`, cx, height - 18);
   ctx.textAlign = "start";
   ctx.font = "12px system-ui";
 }
