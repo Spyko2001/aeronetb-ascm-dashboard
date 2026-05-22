@@ -398,10 +398,18 @@ function supplierForm() {
 }
 
 function orderForm() {
+  const supplierOptions = state.suppliers.length
+    ? state.suppliers.map((s) => `<option value="${s.supplier_id}">${escapeHtml(s.business_name)}</option>`).join("")
+    : `<option value="">No suppliers available</option>`;
+
+  const partOptions = state.parts.length
+    ? state.parts.map((p) => `<option value="${p.part_id}">${escapeHtml(p.part_name)}</option>`).join("")
+    : `<option value="">No parts available</option>`;
+
   return `
     <form class="form-grid" id="order-form">
-      <label>Supplier<select name="supplier_id" required>${state.suppliers.map((supplier) => `<option value="${supplier.supplier_id}">${escapeHtml(supplier.business_name)}</option>`).join("")}</select></label>
-      <label>Part<select name="part_id" required>${state.parts.map((part) => `<option value="${part.part_id}">${escapeHtml(part.part_name)}</option>`).join("")}</select></label>
+      <label>Supplier<select name="supplier_id" required>${supplierOptions}</select></label>
+      <label>Part<select name="part_id" required>${partOptions}</select></label>
       <label>Quantity<input name="quantity" type="number" min="1" value="1" required></label>
       <label>Desired delivery<input name="desired_delivery_date" type="date" required></label>
       <label>Status<select name="status"><option>placed</option><option>confirmed</option><option>dispatched</option></select></label>
