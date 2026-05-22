@@ -631,7 +631,7 @@ function drawSupplierChart() {
     return;
   }
   const { ctx, width, height } = setup;
-  const data = state.dashboard?.supplierPerformance || [];
+  let data = state.dashboard?.supplierPerformance || [];
   ctx.clearRect(0, 0, width, height);
 
   if (!data.length) {
@@ -641,11 +641,13 @@ function drawSupplierChart() {
     return;
   }
 
+  // Sort by supplier_id for consistent display
+  data = [...data].sort((a, b) => a.supplier_id - b.supplier_id);
+
   ctx.font = "12px system-ui";
   const max = 100;
-  const groupWidth = Math.max(48, Math.floor((width - 80) / data.length));
-  const barWidth = Math.max(10, Math.floor((groupWidth - 16) / 2));
-  const gap = 8;
+  const groupWidth = Math.max(52, Math.floor((width - 90) / data.length));
+  const barWidth = Math.max(12, Math.floor((groupWidth - 18) / 2));
 
   // Legend
   ctx.fillStyle = "#0f766e";
@@ -653,28 +655,29 @@ function drawSupplierChart() {
   ctx.fillStyle = "#17202a";
   ctx.fillText("On time %", 32, 20);
   ctx.fillStyle = "#b91c1c";
-  ctx.fillRect(110, 10, 12, 12);
+  ctx.fillRect(115, 10, 12, 12);
   ctx.fillStyle = "#17202a";
-  ctx.fillText("Defect %", 126, 20);
+  ctx.fillText("Defect %", 131, 20);
 
   data.forEach((item, index) => {
-    const x = 42 + index * groupWidth;
+    const x = 48 + index * groupWidth;
     const onTime = Math.max(0, Math.min(100, item.on_time_rate || 0));
     const defect = Math.max(0, Math.min(100, item.defect_rate || 0));
-    const onTimeHeight = (onTime / max) * (height - 70);
-    const defectHeight = (defect / max) * (height - 70);
+    const onTimeHeight = (onTime / max) * (height - 72);
+    const defectHeight = (defect / max) * (height - 72);
 
-    // On time bar (teal)
+    // On time bar
     ctx.fillStyle = "#0f766e";
-    ctx.fillRect(x, height - 38 - onTimeHeight, barWidth, onTimeHeight);
+    ctx.fillRect(x, height - 40 - onTimeHeight, barWidth, onTimeHeight);
 
-    // Defect bar (red)
+    // Defect bar
     ctx.fillStyle = "#b91c1c";
-    ctx.fillRect(x + barWidth + 4, height - 38 - defectHeight, barWidth, defectHeight);
+    ctx.fillRect(x + barWidth + 6, height - 40 - defectHeight, barWidth, defectHeight);
 
-    // Supplier ID label
+    // Centered label
     ctx.fillStyle = "#344054";
-    ctx.fillText(String(item.supplier_id), x + barWidth / 2 - 4, height - 16);
+    const label = String(item.supplier_id);
+    ctx.fillText(label, x + barWidth + 3, height - 18);
   });
 }
 
@@ -690,7 +693,7 @@ function drawQcChart() {
   const total = Math.max(pass + fail, 1);
   const cx = width / 2;
   const cy = height / 2;
-  const radius = Math.min(width, height) / 3.2;
+  const radius = Math.min(width, height) / 3.1;
   ctx.clearRect(0, 0, width, height);
 
   // Legend
@@ -719,10 +722,11 @@ function drawQcChart() {
     start += angle;
   });
 
+  // Center total
   ctx.fillStyle = "#17202a";
-  ctx.font = "700 20px system-ui";
+  ctx.font = "700 22px system-ui";
   ctx.textAlign = "center";
-  ctx.fillText(`${total}`, cx, cy + 7);
+  ctx.fillText(`${total}`, cx, cy + 8);
   ctx.textAlign = "start";
   ctx.font = "12px system-ui";
 }
