@@ -655,7 +655,7 @@ function drawSupplierChart() {
   const marginLeft = 50;
   const marginRight = 20;
   const marginTop = 30;
-  const marginBottom = 35;
+  const marginBottom = 40;
   const plotWidth = width - marginLeft - marginRight;
   const plotHeight = height - marginTop - marginBottom;
   const groupWidth = plotWidth / data.length;
@@ -706,10 +706,11 @@ function drawSupplierChart() {
     ctx.fillStyle = "#b91c1c";
     ctx.fillRect(x + barWidth + 4, marginTop + plotHeight - defectHeight, barWidth, defectHeight);
 
-    // Supplier ID
+    // Supplier ID - centered under the two bars
     ctx.fillStyle = "#344054";
     ctx.textAlign = "center";
-    ctx.fillText(String(item.supplier_id), x + barWidth + 2, height - 12);
+    const centerX = x + barWidth + 2;
+    ctx.fillText(String(item.supplier_id), centerX, height - 12);
   });
 
   ctx.textAlign = "left";
