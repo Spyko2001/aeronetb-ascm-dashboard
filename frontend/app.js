@@ -641,6 +641,7 @@ function drawSupplierChart() {
     return;
   }
 
+  // Sort by supplier_id and remove entries with no data
   data = data.filter(item => (item.on_time_rate || 0) > 0 || (item.defect_rate || 0) > 0);
   data.sort((a, b) => a.supplier_id - b.supplier_id);
 
@@ -658,8 +659,13 @@ function drawSupplierChart() {
   const marginBottom = 40;
   const plotWidth = width - marginLeft - marginRight;
   const plotHeight = height - marginTop - marginBottom;
-  const groupWidth = plotWidth / data.length;
-  const barWidth = Math.max(10, (groupWidth - 16) / 2);
+
+  // Bar dimensions
+  const barWidth = 16;
+  const gap = 4;
+  const groupSpacing = 10;
+  const totalGroupWidth = barWidth + gap + barWidth + groupSpacing;
+  const startX = marginLeft + (plotWidth - data.length * totalGroupWidth) / 2;
 
   // Grid lines + Y-axis numbers
   ctx.strokeStyle = "#e5e7eb";
@@ -690,9 +696,9 @@ function drawSupplierChart() {
   ctx.fillStyle = "#17202a";
   ctx.fillText("Defect %", 126, 18);
 
-  // Bars
+  // Draw bars
   data.forEach((item, index) => {
-    const x = marginLeft + index * groupWidth + 8;
+    const xStart = startX + index * totalGroupWidth;
     const onTime = Math.max(0, Math.min(100, item.on_time_rate || 0));
     const defect = Math.max(0, Math.min(100, item.defect_rate || 0));
     const onTimeHeight = (onTime / max) * plotHeight;
@@ -700,17 +706,18 @@ function drawSupplierChart() {
 
     // On time bar (teal)
     ctx.fillStyle = "#0f766e";
-    ctx.fillRect(x, marginTop + plotHeight - onTimeHeight, barWidth, onTimeHeight);
+    ctx.fillRect(xStart, marginTop + plotHeight - onTimeHeight, barWidth, onTimeHeight);
 
     // Defect bar (red)
     ctx.fillStyle = "#b91c1c";
-    ctx.fillRect(x + barWidth + 4, marginTop + plotHeight - defectHeight, barWidth, defectHeight);
+    ctx.fillRect(xStart + barWidth + gap, marginTop + plotHeight - defectHeight, barWidth, defectHeight);
 
-    // Supplier ID - centered under the two bars
+    // Supplier ID label - centered under both bars
     ctx.fillStyle = "#344054";
     ctx.textAlign = "center";
-    const centerX = x + barWidth + 2;
-    ctx.fillText(String(item.supplier_id), centerX, height - 12);
+    ctx.font = "12px system-ui";
+    const labelX = xStart + barWidth / 2 + gap / 2 + barWidth / 2;
+    ctx.fillText(String(item.supplier_id), labelX, height - 12);
   });
 
   ctx.textAlign = "left";
