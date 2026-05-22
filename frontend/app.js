@@ -641,13 +641,21 @@ function drawSupplierChart() {
     return;
   }
 
-  // Sort by supplier_id for consistent display
-  data = [...data].sort((a, b) => a.supplier_id - b.supplier_id);
+  // Only show suppliers that have at least one value
+  data = data.filter(item => (item.on_time_rate || 0) > 0 || (item.defect_rate || 0) > 0);
+  data.sort((a, b) => a.supplier_id - b.supplier_id);
+
+  if (!data.length) {
+    ctx.fillStyle = "#667085";
+    ctx.font = "12px system-ui";
+    ctx.fillText("No performance data available", 24, 40);
+    return;
+  }
 
   ctx.font = "12px system-ui";
   const max = 100;
-  const groupWidth = Math.max(52, Math.floor((width - 90) / data.length));
-  const barWidth = Math.max(12, Math.floor((groupWidth - 18) / 2));
+  const groupWidth = Math.max(60, Math.floor((width - 100) / data.length));
+  const barWidth = Math.max(14, Math.floor((groupWidth - 20) / 2));
 
   // Legend
   ctx.fillStyle = "#0f766e";
@@ -660,7 +668,7 @@ function drawSupplierChart() {
   ctx.fillText("Defect %", 131, 20);
 
   data.forEach((item, index) => {
-    const x = 48 + index * groupWidth;
+    const x = 50 + index * groupWidth;
     const onTime = Math.max(0, Math.min(100, item.on_time_rate || 0));
     const defect = Math.max(0, Math.min(100, item.defect_rate || 0));
     const onTimeHeight = (onTime / max) * (height - 72);
@@ -674,7 +682,7 @@ function drawSupplierChart() {
     ctx.fillStyle = "#b91c1c";
     ctx.fillRect(x + barWidth + 6, height - 40 - defectHeight, barWidth, defectHeight);
 
-    // Centered label
+    // Label centered under the group
     ctx.fillStyle = "#344054";
     const label = String(item.supplier_id);
     ctx.fillText(label, x + barWidth + 3, height - 18);
@@ -722,11 +730,13 @@ function drawQcChart() {
     start += angle;
   });
 
-  // Center total
-  ctx.fillStyle = "#17202a";
-  ctx.font = "700 22px system-ui";
-  ctx.textAlign = "center";
-  ctx.fillText(`${total}`, cx, cy + 8);
+  // Center total (only show if there is data)
+  if (total > 0) {
+    ctx.fillStyle = "#17202a";
+    ctx.font = "700 22px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText(`${total}`, cx, cy + 8);
+  }
   ctx.textAlign = "start";
   ctx.font = "12px system-ui";
 }
