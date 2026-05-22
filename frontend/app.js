@@ -641,7 +641,6 @@ function drawSupplierChart() {
     return;
   }
 
-  // Only show suppliers that have at least one value
   data = data.filter(item => (item.on_time_rate || 0) > 0 || (item.defect_rate || 0) > 0);
   data.sort((a, b) => a.supplier_id - b.supplier_id);
 
@@ -652,41 +651,68 @@ function drawSupplierChart() {
     return;
   }
 
-  ctx.font = "12px system-ui";
   const max = 100;
-  const groupWidth = Math.max(60, Math.floor((width - 100) / data.length));
-  const barWidth = Math.max(14, Math.floor((groupWidth - 20) / 2));
+  const marginLeft = 50;
+  const marginRight = 20;
+  const marginTop = 30;
+  const marginBottom = 35;
+  const plotWidth = width - marginLeft - marginRight;
+  const plotHeight = height - marginTop - marginBottom;
+  const groupWidth = plotWidth / data.length;
+  const barWidth = Math.max(10, (groupWidth - 16) / 2);
+
+  // Grid lines + Y-axis numbers
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.fillStyle = "#667085";
+  ctx.font = "11px system-ui";
+  ctx.textAlign = "right";
+
+  for (let i = 0; i <= 4; i++) {
+    const y = marginTop + (plotHeight * i) / 4;
+    ctx.beginPath();
+    ctx.moveTo(marginLeft, y);
+    ctx.lineTo(width - marginRight, y);
+    ctx.stroke();
+
+    const value = 100 - (i * 25);
+    ctx.fillText(value.toString(), marginLeft - 8, y + 4);
+  }
+
+  ctx.textAlign = "left";
 
   // Legend
   ctx.fillStyle = "#0f766e";
-  ctx.fillRect(16, 10, 12, 12);
+  ctx.fillRect(16, 8, 12, 12);
   ctx.fillStyle = "#17202a";
-  ctx.fillText("On time %", 32, 20);
+  ctx.fillText("On time %", 32, 18);
   ctx.fillStyle = "#b91c1c";
-  ctx.fillRect(115, 10, 12, 12);
+  ctx.fillRect(110, 8, 12, 12);
   ctx.fillStyle = "#17202a";
-  ctx.fillText("Defect %", 131, 20);
+  ctx.fillText("Defect %", 126, 18);
 
+  // Bars
   data.forEach((item, index) => {
-    const x = 50 + index * groupWidth;
+    const x = marginLeft + index * groupWidth + 8;
     const onTime = Math.max(0, Math.min(100, item.on_time_rate || 0));
     const defect = Math.max(0, Math.min(100, item.defect_rate || 0));
-    const onTimeHeight = (onTime / max) * (height - 72);
-    const defectHeight = (defect / max) * (height - 72);
+    const onTimeHeight = (onTime / max) * plotHeight;
+    const defectHeight = (defect / max) * plotHeight;
 
-    // On time bar
+    // On time bar (teal)
     ctx.fillStyle = "#0f766e";
-    ctx.fillRect(x, height - 40 - onTimeHeight, barWidth, onTimeHeight);
+    ctx.fillRect(x, marginTop + plotHeight - onTimeHeight, barWidth, onTimeHeight);
 
-    // Defect bar
+    // Defect bar (red)
     ctx.fillStyle = "#b91c1c";
-    ctx.fillRect(x + barWidth + 6, height - 40 - defectHeight, barWidth, defectHeight);
+    ctx.fillRect(x + barWidth + 4, marginTop + plotHeight - defectHeight, barWidth, defectHeight);
 
-    // Label centered under the group
+    // Supplier ID
     ctx.fillStyle = "#344054";
-    const label = String(item.supplier_id);
-    ctx.fillText(label, x + barWidth + 3, height - 18);
+    ctx.textAlign = "center";
+    ctx.fillText(String(item.supplier_id), x + barWidth + 2, height - 12);
   });
+
+  ctx.textAlign = "left";
 }
 
 function drawQcChart() {
