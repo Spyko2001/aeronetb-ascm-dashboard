@@ -152,7 +152,7 @@ async function refreshData() {
     tryLoad("equipment", "/api/equipment", "read:equipment"),
     tryLoad("iotLogs", "/api/iot", "read:iot"),
     tryLoad("auditLogs", "/api/audit-logs", "read:audit"),
-    tryLoad("complianceFlags", "/api/compliance-flags", "read:certifications")
+    tryLoad("complianceFlags", "/api/compliance-flags", "read:*")
   ]);
 
   renderShell();
@@ -231,6 +231,7 @@ function renderShell() {
           <label class="search-box">
             <span>Search</span>
             <input id="global-filter" value="${escapeHtml(state.filter)}" placeholder="supplier, part, order, report">
+            ${state.filter ? `<button type="button" class="search-clear" data-action="clear-search">×</button>` : ""}
           </label>
           <button class="button-secondary" data-action="refresh" type="button">Refresh</button>
           <button class="button-secondary" data-action="logout" type="button">Logout</button>
@@ -632,25 +633,49 @@ function drawSupplierChart() {
   const { ctx, width, height } = setup;
   const data = state.dashboard?.supplierPerformance || [];
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "#667085";
+
+  if (!data.length) {
+    ctx.fillStyle = "#667085";
+    ctx.font = "12px system-ui";
+    ctx.fillText("No supplier performance data", 24, 40);
+    return;
+  }
+
   ctx.font = "12px system-ui";
   const max = 100;
-  const barWidth = Math.max(24, (width - 60) / Math.max(data.length, 1) - 14);
-  data.forEach((item, index) => {
-    const x = 42 + index * (barWidth + 14);
-    const onTimeHeight = ((item.on_time_rate || 0) / max) * (height - 72);
-    const defectHeight = ((item.defect_rate || 0) / max) * (height - 72);
-    ctx.fillStyle = "#0f766e";
-    ctx.fillRect(x, height - 42 - onTimeHeight, barWidth / 2, onTimeHeight);
-    ctx.fillStyle = "#b91c1c";
-    ctx.fillRect(x + barWidth / 2 + 3, height - 42 - defectHeight, barWidth / 2, defectHeight);
-    ctx.fillStyle = "#344054";
-    ctx.fillText(String(item.supplier_id), x, height - 18);
-  });
+  const groupWidth = Math.max(48, Math.floor((width - 80) / data.length));
+  const barWidth = Math.max(10, Math.floor((groupWidth - 16) / 2));
+  const gap = 8;
+
+  // Legend
   ctx.fillStyle = "#0f766e";
-  ctx.fillText("On time %", 12, 18);
+  ctx.fillRect(16, 10, 12, 12);
+  ctx.fillStyle = "#17202a";
+  ctx.fillText("On time %", 32, 20);
   ctx.fillStyle = "#b91c1c";
-  ctx.fillText("Defect %", 92, 18);
+  ctx.fillRect(110, 10, 12, 12);
+  ctx.fillStyle = "#17202a";
+  ctx.fillText("Defect %", 126, 20);
+
+  data.forEach((item, index) => {
+    const x = 42 + index * groupWidth;
+    const onTime = Math.max(0, Math.min(100, item.on_time_rate || 0));
+    const defect = Math.max(0, Math.min(100, item.defect_rate || 0));
+    const onTimeHeight = (onTime / max) * (height - 70);
+    const defectHeight = (defect / max) * (height - 70);
+
+    // On time bar (teal)
+    ctx.fillStyle = "#0f766e";
+    ctx.fillRect(x, height - 38 - onTimeHeight, barWidth, onTimeHeight);
+
+    // Defect bar (red)
+    ctx.fillStyle = "#b91c1c";
+    ctx.fillRect(x + barWidth + 4, height - 38 - defectHeight, barWidth, defectHeight);
+
+    // Supplier ID label
+    ctx.fillStyle = "#344054";
+    ctx.fillText(String(item.supplier_id), x + barWidth / 2 - 4, height - 16);
+  });
 }
 
 function drawQcChart() {
@@ -665,8 +690,20 @@ function drawQcChart() {
   const total = Math.max(pass + fail, 1);
   const cx = width / 2;
   const cy = height / 2;
-  const radius = Math.min(width, height) / 3;
+  const radius = Math.min(width, height) / 3.2;
   ctx.clearRect(0, 0, width, height);
+
+  // Legend
+  ctx.font = "12px system-ui";
+  ctx.fillStyle = "#0f766e";
+  ctx.fillRect(16, 10, 12, 12);
+  ctx.fillStyle = "#17202a";
+  ctx.fillText(`PASS: ${pass}`, 32, 20);
+  ctx.fillStyle = "#b91c1c";
+  ctx.fillRect(110, 10, 12, 12);
+  ctx.fillStyle = "#17202a";
+  ctx.fillText(`FAIL: ${fail}`, 126, 20);
+
   let start = -Math.PI / 2;
   [
     ["PASS", pass, "#0f766e"],
@@ -680,13 +717,12 @@ function drawQcChart() {
     ctx.closePath();
     ctx.fill();
     start += angle;
-    ctx.fillStyle = color;
-    ctx.fillText(`${label}: ${value}`, 18, label === "PASS" ? 20 : 42);
   });
+
   ctx.fillStyle = "#17202a";
-  ctx.font = "700 18px system-ui";
+  ctx.font = "700 20px system-ui";
   ctx.textAlign = "center";
-  ctx.fillText(`${total}`, cx, cy + 6);
+  ctx.fillText(`${total}`, cx, cy + 7);
   ctx.textAlign = "start";
   ctx.font = "12px system-ui";
 }
@@ -699,39 +735,45 @@ function drawIotChart() {
   const { ctx, width, height } = setup;
   const rows = [...state.iotLogs].reverse().slice(-12);
   ctx.clearRect(0, 0, width, height);
+
   ctx.strokeStyle = "#d7dde5";
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(36, 16);
-  ctx.lineTo(36, height - 34);
-  ctx.lineTo(width - 16, height - 34);
+  ctx.moveTo(40, 20);
+  ctx.lineTo(40, height - 36);
+  ctx.lineTo(width - 20, height - 36);
   ctx.stroke();
 
   if (!rows.length) {
     ctx.fillStyle = "#667085";
-    ctx.fillText("No IoT readings loaded", 48, 48);
+    ctx.font = "12px system-ui";
+    ctx.fillText("No IoT readings loaded", 56, 48);
     return;
   }
 
   const values = rows.map((row) => Number(row.readings?.temperature_c || 0));
-  const min = Math.min(...values, 0);
-  const max = Math.max(...values, 90);
-  const plotWidth = width - 62;
-  const plotHeight = height - 58;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const plotWidth = width - 70;
+  const plotHeight = height - 60;
+
   ctx.strokeStyle = "#2563eb";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   values.forEach((value, index) => {
-    const x = 36 + (plotWidth / Math.max(values.length - 1, 1)) * index;
-    const y = height - 34 - ((value - min) / Math.max(max - min, 1)) * plotHeight;
-    if (index === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
+    const x = 40 + (plotWidth / Math.max(values.length - 1, 1)) * index;
+    const y = height - 36 - ((value - min) / Math.max(max - min, 1)) * plotHeight;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
   });
   ctx.stroke();
+
+  // Labels
   ctx.fillStyle = "#344054";
-  ctx.fillText("Temperature C", 44, 22);
+  ctx.font = "12px system-ui";
+  ctx.fillText("Temperature °C", 52, 16);
+  ctx.fillText(`Min: ${min.toFixed(1)}`, width - 90, 16);
+  ctx.fillText(`Max: ${max.toFixed(1)}`, width - 90, 30);
 }
 
 function formValues(form) {
@@ -875,6 +917,10 @@ document.addEventListener("click", async (event) => {
     if (button.dataset.action === "refresh") {
       state.message = null;
       await refreshData();
+    }
+    if (button.dataset.action === "clear-search") {
+      state.filter = "";
+      renderShell();
     }
     if (button.dataset.action === "approve-qc") {
       await api(`/api/qc-reports/${button.dataset.id}/approve`, { method: "POST" });

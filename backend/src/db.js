@@ -201,6 +201,7 @@ async function connectPostgres() {
   const { Pool } = await import("pg");
   pgPool = new Pool(pgConnectionOptions());
   await pgPool.query("SELECT 1");
+  console.log("Connected to PostgreSQL");
   await ensurePostgresSchema();
 }
 
@@ -219,6 +220,7 @@ async function connectMongo() {
   });
   await mongoClient.connect();
   mongoDb = mongoClient.db(config.mongoDbName);
+  console.log("Connected to MongoDB Atlas");
   await ensureMongoCollectionsAndIndexes();
 }
 
