@@ -9,3 +9,4 @@ coverage/
 tmp/
 *.zip
 docs/assets/screenshot-*.tmp.png
+AGENTS.md
